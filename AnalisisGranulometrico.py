@@ -267,7 +267,7 @@ if st.session_state["calculado"]:
             elif sigma_val < 0.50:
                 disp = "La muestra presenta una distribución relativamente uniforme (moderadamente seleccionada)."
             else:
-                disp = "La muestra presenta una amplia dispersión de tamaños, característico de una muestra procedente de trituración."
+                disp = "La muestra presenta una amplia dispersión de tamaños"
 
             if Sk_val < -0.3:
                 asim = "La distribución es sesgada hacia partículas finas."
