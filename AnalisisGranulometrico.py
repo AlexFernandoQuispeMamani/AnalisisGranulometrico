@@ -10,8 +10,10 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
-st.set_page_config(page_title="Análisis Granulométrico", layout="wide")
-st.title("ANÁLISIS GRANULOMÉTRICO")
+st.set_page_config(page_title="ANÁLISIS GRANULOMÉTRICO", layout="centered")
+
+st.markdown("<h1 style='text-align: center;'>ANÁLISIS GRANULOMÉTRICO</h1>", unsafe_allow_html=True)
+st.markdown("<h4 style='text-align: center;'>Desarrollado por: Alex Fernando Quispe Mamani</h4>", unsafe_allow_html=True)
 
 col1, col2 = st.columns([2, 1])
 
