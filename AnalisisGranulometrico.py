@@ -82,15 +82,19 @@ if st.session_state["calculado"]:
                      use_container_width=True)
 
         # Selector de gráficos en la pestaña de Resultados
-        grafico_seleccionado = st.selectbox(
-            "GRAFICOS",
-            ["DISTRIBUCIÓN POR CLASES (%Peso)",
-             "%ACUMULADO PASANTE",
-             "%ACUMULADO RETENIDO",
-             "RETENIDO vs PASANTE",
-             "COMPARACIÓN DE CURVAS"]
-        )
+        opciones = [
+            "GRÁFICOS",
+            "DISTRIBUCIÓN POR CLASES (%Peso)",
+            "%ACUMULADO RETENIDO",
+            "%ACUMULADO PASANTE",
+            "COMBINACIÓN DE 3 GRÁFICAS",
+            "RETENIDO Y PASANTE"
+        ]
 
+        opcion = st.selectbox("Seleccione un gráfico:", opciones, index=0)
+
+        if opcion != "GRÁFICOS":
+            
         df_plot = df[df["Tamaño (μm)"] > 0].sort_values(by="Tamaño (μm)")
 
         fig, ax = plt.subplots()
@@ -337,6 +341,7 @@ if st.session_state["calculado"]:
         st.warning("Por favor, ingrese datos válidos y un peso total mayor a cero.")
 else:
     st.info("Ingrese los datos y presione **CALCULAR** para mostrar los resultados.")
+
 
 
 
