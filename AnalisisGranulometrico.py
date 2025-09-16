@@ -10,6 +10,10 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
+# Inicializar variable de control de páginas
+if "page" not in st.session_state:
+    st.session_state.page = "input"
+
 st.set_page_config(page_title="CARACTERIZACIÓN GRANULOMÉTRICA", layout="centered")
 
 st.markdown("<h1 style='text-align: center;'>CARACTERIZACIÓN GRANULOMÉTRICA</h1>", unsafe_allow_html=True)
@@ -336,6 +340,7 @@ elif st.session_state.page == "results":
             st.warning("Por favor, ingrese datos válidos y un peso total mayor a cero.")
     else:
         st.warning("No hay resultados calculados. Vuelve a la pantalla de entrada y presiona CALCULAR.")
+
 
 
 
