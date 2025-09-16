@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Created on Sat May 24 23:48:44 2025
+Created on Tue Sep 16 10:23:43 2025
 
 @author: ALEX
 """
@@ -294,7 +294,7 @@ if st.session_state["calculado"]:
     else:
         st.warning("Por favor, ingrese datos válidos y un peso total mayor a cero.")
 else:
-st.info("Ingrese los datos y presione **CALCULAR** para mostrar los resultados.")
+    st.info("Ingrese los datos y presione **CALCULAR** para mostrar los resultados.")
 
 
 
