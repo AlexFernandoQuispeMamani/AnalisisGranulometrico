@@ -10,23 +10,23 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
-st.set_page_config(page_title="ANÁLISIS GRANULOMÉTRICO", layout="centered")
+st.set_page_config(page_title="CARACTERIZACIÓN GRANULOMÉTRICA", layout="centered")
 
-st.markdown("<h1 style='text-align: center;'>ANÁLISIS GRANULOMÉTRICO</h1>", unsafe_allow_html=True)
-st.markdown("<h4 style='text-align: center;'>Desarrollado por: Alex Fernando Quispe Mamani</h4>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: center;'>CARACTERIZACIÓN GRANULOMÉTRICA</h1>", unsafe_allow_html=True)
+st.markdown("<h4 style='text-align: center;'>Alex Fernando Quispe Mamani</h4>", unsafe_allow_html=True)
 
-col1, col2 = st.columns([2, 1])
+col1, col2 = st.columns([2, 2])
 
 with col1:
-    st.write("Ingrese el **peso total de la muestra (g)**:")
+    st.write("Ingrese el **peso total de la muestra**:")
     peso_total = st.number_input("Peso total (g)", min_value=0.01, step=0.01)
 
     st.write("Ingrese los datos de fracción retenida (mínimo 3 filas, máximo 20):")
     num_filas = st.number_input("Cantidad de fracciones", min_value=3, max_value=20, value=5, step=1)
 
     default_data = pd.DataFrame({
-        "Tamaño (μm)": [0.0] * int(num_filas),
-        "Peso retenido (g)": [0.0] * int(num_filas)
+        "Tamaño [μm]": [0.0] * int(num_filas),
+        "Peso retenido [g]": [0.0] * int(num_filas)
     })
 
     edited_df = st.data_editor(default_data, num_rows="dynamic", use_container_width=True, column_config={
@@ -36,14 +36,14 @@ with col1:
 
 with col2:
     st.markdown("""
-    ### ¿Qué hace esta aplicación?
-    Esta herramienta permite analizar la **distribución granulométrica** de una muestra de partículas.
+    ### Esta herramienta permite analizar la **distribución granulométrica** de una muestra de partículas.
 
-    A partir de los tamaños de fracción y pesos retenidos, calcula:
-    - Distribución porcentual y acumulada.
-    - Tamaños característicos (como d₅₀, d₈₀).
+    A partir de los pesos retenidos sobre cada tamiz, calcula:
+    - Tabla de análisis granulométrico.
+    - Tamaños nominales (como d₅₀, d₈₀).
+    - Estadísticos generales.
+    - Diagramas de simple distribución y perfiles granulométricos
     - Estadísticos según Folk & Ward.
-    - Gráficos representativos del análisis.
 
     Presiona **CALCULAR** para procesar los datos.
     """)
@@ -295,3 +295,4 @@ if st.session_state["calculado"]:
         st.warning("Por favor, ingrese datos válidos y un peso total mayor a cero.")
 else:
     st.info("Ingrese los datos y presione **CALCULAR** para mostrar los resultados.")
+
