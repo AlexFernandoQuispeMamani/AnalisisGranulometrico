@@ -52,12 +52,6 @@ if "calculado" not in st.session_state:
 if st.button("CALCULAR", type="primary"):
     st.session_state["calculado"] = True
 
-# Selector de gráfico (lista desplegable)
-grafico_seleccionado = st.selectbox(
-    "Seleccione el gráfico a mostrar:",
-    ["DISTRIBUCIÓN POR CLASES (%Peso)", "%ACUMULADO PASANTE", "%ACUMULADO RETENIDO", "COMPARACIÓN DE CURVAS"]
-)
-
 if st.session_state["calculado"]:
     tab1, tab2 = st.tabs(["📊 Datos de entrada", "📈 Resultados"])
 
@@ -93,6 +87,17 @@ if st.session_state["calculado"]:
 
             df_plot = df[df["Tamaño (μm)"] > 0].sort_values(by="Tamaño (μm)")
 
+            # Selector de gráficos SOLO en la pestaña de resultados
+            grafico_seleccionado = st.selectbox(
+                "GRAFICOS",
+                ["DISTRIBUCIÓN POR CLASES (%Peso)",
+                 "%ACUMULADO PASANTE",
+                 "%ACUMULADO RETENIDO",
+                 "COMPARACIÓN DE CURVAS",
+                 "RETENIDO vs PASANTE"]
+            )
+
+            # Gráfico
             fig, ax = plt.subplots()
             ax.set_facecolor("white")
             fig.patch.set_facecolor("lightgray")
@@ -126,12 +131,21 @@ if st.session_state["calculado"]:
                 ax.set_title("COMPARACIÓN DE CURVAS")
                 ax.legend()
 
+            elif grafico_seleccionado == "RETENIDO vs PASANTE":
+                ax.set_ylim(0, 100)
+                ax.plot(df_plot["Tamaño (μm)"], df_plot["%R(d)"], marker='^', color='blue', linewidth=1, label="%R(d)")
+                ax.plot(df_plot["Tamaño (μm)"], df_plot["%F(d)"], marker='s', color='red', linewidth=1, label="%F(d)")
+                ax.set_ylabel("Porcentaje (%)")
+                ax.set_title("RETENIDO vs PASANTE")
+                ax.legend()
+
             st.pyplot(fig)
 
         else:
             st.warning("Por favor, ingrese datos válidos y un peso total mayor a cero.")
 else:
     st.info("Ingrese los datos y presione **CALCULAR** para mostrar los resultados.")
+
 
 
 
