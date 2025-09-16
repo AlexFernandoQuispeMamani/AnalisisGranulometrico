@@ -81,28 +81,24 @@ if st.session_state["calculado"]:
         st.dataframe(df[["Tamaño (μm)", "Peso retenido (g)", "%Peso", "%R(d)", "%F(d)"]],
                      use_container_width=True)
 
-        # Selector de gráficos en la pestaña de Resultados
-        opciones = [
-            "GRÁFICOS",
-            "DISTRIBUCIÓN POR CLASES (%Peso)",
-            "%ACUMULADO RETENIDO",
-            "%ACUMULADO PASANTE",
-            "COMBINACIÓN DE 3 GRÁFICAS",
-            "RETENIDO Y PASANTE"
-        ]
+      # Selector de gráficos en la pestaña de Resultados
+        grafico_seleccionado = st.selectbox(
+            "GRAFICOS",
+            ["DISTRIBUCIÓN POR CLASES (%Peso)",
+             "%ACUMULADO PASANTE",
+             "%ACUMULADO RETENIDO",
+             "RETENIDO vs PASANTE",
+             "COMPARACIÓN DE CURVAS"]
+        )
 
-        opcion = st.selectbox("Seleccione un gráfico:", opciones, index=0)
+        df_plot = df[df["Tamaño (μm)"] > 0].sort_values(by="Tamaño (μm)")
 
-        if opcion != "GRÁFICOS":
-            
-            df_plot = df[df["Tamaño (μm)"] > 0].sort_values(by="Tamaño (μm)")
-
-            fig, ax = plt.subplots()
-            ax.set_facecolor("white")
-            fig.patch.set_facecolor("lightgray")
-            ax.grid(False)
-            ax.tick_params(colors='black')
-            ax.set_xlabel("Tamaño de partícula (μm)")
+        fig, ax = plt.subplots()
+        ax.set_facecolor("white")
+        fig.patch.set_facecolor("lightgray")
+        ax.grid(False)
+        ax.tick_params(colors='black')
+        ax.set_xlabel("Tamaño de partícula (μm)")
 
         # 1) Distribución por clases
         if grafico_seleccionado == "DISTRIBUCIÓN POR CLASES (%Peso)":
@@ -341,6 +337,7 @@ if st.session_state["calculado"]:
         st.warning("Por favor, ingrese datos válidos y un peso total mayor a cero.")
 else:
     st.info("Ingrese los datos y presione **CALCULAR** para mostrar los resultados.")
+
 
 
 
