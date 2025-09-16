@@ -25,8 +25,8 @@ with col1:
     num_filas = st.number_input("Cantidad de fracciones", min_value=3, max_value=20, value=5, step=1)
 
     default_data = pd.DataFrame({
-        "Tamaño [μm]": [0.0] * int(num_filas),
-        "Peso retenido [g]": [0.0] * int(num_filas)
+        "Tamaño (μm)": [0.0] * int(num_filas),
+        "Peso retenido (g)": [0.0] * int(num_filas)
     })
 
     edited_df = st.data_editor(default_data, num_rows="dynamic", use_container_width=True, column_config={
@@ -337,6 +337,7 @@ if st.session_state["calculado"]:
         st.warning("Por favor, ingrese datos válidos y un peso total mayor a cero.")
 else:
     st.info("Ingrese los datos y presione **CALCULAR** para mostrar los resultados.")
+
 
 
 
