@@ -93,10 +93,7 @@ if st.session_state["calculado"]:
             index=0
         )
 
-        # Solo dibujar si se selecciona un gráfico real
         if grafico_seleccionado != "GRÁFICOS":
-            df_plot = df[df["Tamaño (μm)"] > 0].sort_values(by="Tamaño (μm)")
-
             fig, ax = plt.subplots()
             ax.set_facecolor("white")
             fig.patch.set_facecolor("lightgray")
@@ -321,6 +318,7 @@ if st.session_state["calculado"]:
         st.warning("Por favor, ingrese datos válidos y un peso total mayor a cero.")
 else:
     st.info("Ingrese los datos y presione **CALCULAR** para mostrar los resultados.")
+
 
 
 
