@@ -161,80 +161,77 @@ if st.session_state["calculado"]:
         st.pyplot(fig)
 
         # ---------------------------
-        # Estadísticos en dos columnas
+        # Columnas para estadísticos
         # ---------------------------
-        st.subheader("Estadísticos generales")
+        col_placeholder, col_right = st.columns([1, 2])
 
-        # Estadísticos básicos de tamaño
-        media = df_plot["Tamaño (μm)"].mean()
-        mediana = df_plot["Tamaño (μm)"].median()
-        moda = df_plot["Tamaño (μm)"].mode()[0]
-        varianza_tamaño = df_plot["Tamaño (μm)"].var()
-
-        # Estadísticos asociados a %Peso
-        peso_en_media = df_plot.loc[(df_plot["Tamaño (μm)"] - media).abs().idxmin(), "%Peso"]
-        peso_en_mediana = df_plot.loc[(df_plot["Tamaño (μm)"] - mediana).abs().idxmin(), "%Peso"]
-        peso_en_moda = df_plot.loc[(df_plot["Tamaño (μm)"] - moda).abs().idxmin(), "%Peso"]
-        varianza_peso = df_plot["%Peso"].var()
-
-        c1, c2 = st.columns(2)
-        with c1:
-            st.subheader("Estadísticos de Tamaño (μm)")
-            st.write(f"Media: {media:.2f}")
-            st.write(f"Mediana: {mediana:.2f}")
-            st.write(f"Moda: {moda:.2f}")
-            st.write(f"Varianza: {varianza_tamaño:.2f}")
-
-        with c2:
-            st.subheader("Estadísticos de %Peso")
-            st.write(f"%Peso en Media: {peso_en_media:.2f}")
-            st.write(f"%Peso en Mediana: {peso_en_mediana:.2f}")
-            st.write(f"%Peso en Moda: {peso_en_moda:.2f}")
-            st.write(f"Varianza de %Peso: {varianza_peso:.2f}")
+        with col_right:
+            # ---------------------------
+            # Estadísticos en dos columnas
+            # ---------------------------
+            st.subheader("Estadísticos generales")
+            # ... (the rest of your existing code for statistics) ...
             
-        # Tamaños nominales (d05, d16, etc.)
-        st.subheader("Tamaños nominales")
-        objetivos = [5, 16, 25, 50, 75, 80, 84, 95]
-        resultados = {}
-        d05_extrapolado = False
-        d95_extrapolado = False
+            # Estadísticos básicos de tamaño
+            media = df_plot["Tamaño (μm)"].mean()
+            mediana = df_plot["Tamaño (μm)"].median()
+            moda = df_plot["Tamaño (μm)"].mode()[0]
+            varianza_tamaño = df_plot["Tamaño (μm)"].var()
 
-        # Asegurar que los datos estén ordenados por %F(d)
-        df_interp = df_plot[["Tamaño (μm)", "%F(d)"]].sort_values(by="%F(d)").drop_duplicates(subset=["%F(d)"])
+            # Estadísticos asociados a %Peso
+            peso_en_media = df_plot.loc[(df_plot["Tamaño (μm)"] - media).abs().idxmin(), "%Peso"]
+            peso_en_mediana = df_plot.loc[(df_plot["Tamaño (μm)"] - mediana).abs().idxmin(), "%Peso"]
+            peso_en_moda = df_plot.loc[(df_plot["Tamaño (μm)"] - moda).abs().idxmin(), "%Peso"]
+            varianza_peso = df_plot["%Peso"].var()
 
-        def interpolar_percentil(x_vals, y_vals, percentil):
-            for i in range(len(y_vals) - 1):
-                if y_vals[i] < percentil <= y_vals[i + 1]:
-                    x0, x1 = x_vals[i], x_vals[i + 1]
-                    y0, y1 = y_vals[i], y_vals[i + 1]
-                    if y1 != y0:
-                        return x0 + (percentil - y0) * (x1 - x0) / (y1 - y0)
-            return None
+            c1, c2 = st.columns(2)
+            with c1:
+                st.subheader("Estadísticos de Tamaño (μm)")
+                st.write(f"Media: {media:.2f}")
+                st.write(f"Mediana: {mediana:.2f}")
+                st.write(f"Moda: {moda:.2f}")
+                st.write(f"Varianza: {varianza_tamaño:.2f}")
 
-        x = df_interp["Tamaño (μm)"].values
-        y = df_interp["%F(d)"].values
+            with c2:
+                st.subheader("Estadísticos de %Peso")
+                st.write(f"%Peso en Media: {peso_en_media:.2f}")
+                st.write(f"%Peso en Mediana: {peso_en_mediana:.2f}")
+                st.write(f"%Peso en Moda: {peso_en_moda:.2f}")
+                st.write(f"Varianza de %Peso: {varianza_peso:.2f}")
 
-        for obj in objetivos:
-            val = interpolar_percentil(x, y, obj)
-    
-            # Extrapolación para d_05 si no se puede interpolar
+            # Tamaños nominales (d05, d16, etc.)
+            st.subheader("Tamaños nominales")
+            objetivos = [5, 16, 25, 50, 75, 80, 84, 95]
+            resultados = {}
+            d05_extrapolado = False
+            d95_extrapolado = False
+
+            df_interp = df_plot[["Tamaño (μm)", "%F(d)"]].sort_values(by="%F(d)").drop_duplicates(subset=["%F(d)"])
+
+            def interpolar_percentil(x_vals, y_vals, percentil):
+                for i in range(len(y_vals) - 1):
+                    if y_vals[i] < percentil <= y_vals[i + 1]:
+                        x0, x1 = x_vals[i], x_vals[i + 1]
+                        y0, y1 = y_vals[i], y_vals[i + 1]
+                        if y1 != y0:
+                            return x0 + (percentil - y0) * (x1 - x0) / (y1 - y0)
+                return None
+
+            x = df_interp["Tamaño (μm)"].values
+            y = df_interp["%F(d)"].values
+
             for obj in objetivos:
                 val = interpolar_percentil(x, y, obj)
-    
-                # Extrapolar/interpolar d_05 si no se pudo interpolar y curva no llega a 5%
                 if val is None and obj == 5 and len(x) >= 1:
                     if y[0] > 5:
-                        # Punto ficticio (0,0)
                         x0, y0 = 0, 0
                         x1, y1 = x[0], y[0]
                         pendiente = (x1 - x0) / (y1 - y0)
                         val = x0 + (obj - y0) * pendiente
                         d05_extrapolado = True
 
-                # Extrapolar/interpolar d_16 y d_25 similar a d_05 si no hay valor interpolado y curva no llega a esos percentiles
                 if val is None and obj in [16, 25] and len(x) >= 1:
                     if y[0] > obj:
-                        # Punto ficticio (0,0)
                         x0, y0 = 0, 0
                         x1, y1 = x[0], y[0]
                         pendiente = (x1 - x0) / (y1 - y0)
@@ -244,7 +241,6 @@ if st.session_state["calculado"]:
                         else:
                             d25_extrapolado = True
 
-                # Extrapolar d_95 si no se pudo interpolar
                 if val is None and obj == 95 and len(x) >= 2:
                     x0, x1 = x[-2], x[-1]
                     y0, y1 = y[-2], y[-1]
@@ -255,100 +251,88 @@ if st.session_state["calculado"]:
 
                 resultados[f"d_{obj:02}"] = round(val, 2) if isinstance(val, (int, float)) else "No disponible"
 
-            # Extrapolación para d_95 si no se puede interpolar
-            if val is None and obj == 95 and len(x) >= 2:
-                # Tomamos los dos últimos puntos para extrapolar hacia arriba
-                x0, x1 = x[-2], x[-1]
-                y0, y1 = y[-2], y[-1]
-                if y1 > y0 and x1 > x0:
-                    pendiente = (x1 - x0) / (y1 - y0)
-                    val = x1 + (obj - y1) * pendiente
-                    d95_extrapolado = True
+            cols_nominales = st.columns(len(resultados))
+            for i, (clave, valor) in enumerate(resultados.items()):
+                with cols_nominales[i]:
+                    st.markdown(f"**{clave} =** {valor} μm")
 
-            resultados[f"d_{obj:02}"] = round(val, 2) if isinstance(val, (int, float)) else "No disponible"
+            if d05_extrapolado:
+                st.info("Nota: El valor de **d_05** fue estimado por extrapolación a partir de los dos primeros puntos de la curva.")
+            if d95_extrapolado:
+                st.info("Nota: El valor de **d_95** fue estimado por extrapolación a partir de los dos últimos puntos de la curva.")
 
-        # Mostrar valores en columnas
-        cols_nominales = st.columns(len(resultados))
-        for i, (clave, valor) in enumerate(resultados.items()):
-            with cols_nominales[i]:
-                st.markdown(f"**{clave} =** {valor} μm")
+            # Estadística Folk & Ward
+            st.subheader("Estadística granulométrica según Folk y Ward")
 
-        # Mostrar advertencias si hubo extrapolación
-        if d05_extrapolado:
-            st.info("Nota: El valor de **d_05** fue estimado por extrapolación a partir de los dos primeros puntos de la curva.")
-        if d95_extrapolado:
-            st.info("Nota: El valor de **d_95** fue estimado por extrapolación a partir de los dos últimos puntos de la curva.")
+            def es_num(x):
+                return isinstance(x, (int, float))
 
-        # Estadística Folk & Ward
-        st.subheader("Estadística granulométrica según Folk y Ward")
+            d_05 = resultados.get("d_05")
+            d_16 = resultados.get("d_16")
+            d_25 = resultados.get("d_25")
+            d_50 = resultados.get("d_50")
+            d_75 = resultados.get("d_75")
+            d_84 = resultados.get("d_84")
+            d_95 = resultados.get("d_95")
 
-        def es_num(x):
-            return isinstance(x, (int, float))
-
-        d_05 = resultados.get("d_05")
-        d_16 = resultados.get("d_16")
-        d_25 = resultados.get("d_25")
-        d_50 = resultados.get("d_50")
-        d_75 = resultados.get("d_75")
-        d_84 = resultados.get("d_84")
-        d_95 = resultados.get("d_95")
-
-        Md = f"{d_50:.2f} μm" if es_num(d_50) else "No disponible"
-        M = f"{((d_16 + d_50 + d_84) / 3):.2f} μm" if all(es_num(x) for x in [d_16, d_50, d_84]) else "No disponible"
-        sigma_val = ((d_84 - d_16) / 4) + ((d_95 - d_05) / 6.6) if all(es_num(x) for x in [d_16, d_84, d_05, d_95]) else None
-        sigma = f"{sigma_val:.2f} μm" if sigma_val is not None else "No disponible"
-        Sk_val = (((d_84 + d_16 - 2 * d_50) / (2 * (d_84 - d_16))) + ((d_95 + d_05 - 2 * d_50) / (2 * (d_95 - d_05)))) if all(es_num(x) for x in [d_16, d_84, d_50, d_05, d_95]) else None
-        Sk = f"{Sk_val:.2f}" if Sk_val is not None else "No disponible"
-        KG_val = (d_95 - d_05) / (2.44 * (d_75 - d_25)) if all(es_num(x) for x in [d_95, d_05, d_75, d_25]) and (d_75 - d_25) != 0 else None
-        KG = f"{KG_val:.2f}" if KG_val is not None else "No disponible"
-
-        st.markdown(f"""
-                    - Md = {Md}  
-                    - M = {M}  
-                    - σ = {sigma}  
-                    - Sk = {Sk}  
-                    - K = {KG}
-                    """)
-
-        # Comentarios de interpretación
-        st.subheader("Interpretación de los estadísticos Folk & Ward")
-
-        if sigma_val is None or Sk_val is None or KG_val is None:
-            st.warning("No se pueden generar interpretaciones completas debido a datos incompletos.")
-        else:
-            if sigma_val < 0.35:
-                disp = "La muestra presenta una distribución granulométrica muy uniforme (bien seleccionada)."
-            elif sigma_val < 0.50:
-                disp = "La muestra presenta una distribución relativamente uniforme (moderadamente seleccionada)."
-            else:
-                disp = "La muestra presenta una amplia dispersión de tamaños"
-
-            if Sk_val < -0.3:
-                asim = "La distribución es sesgada hacia partículas finas."
-            elif Sk_val > 0.3:
-                asim = "La distribución es sesgada hacia partículas gruesas."
-            else:
-                asim = "La distribución es relativamente simétrica."
-
-            if KG_val < 0.67:
-                curt = "La distribución es platicúrtica (colas anchas, pico bajo)."
-            elif KG_val > 1.00:
-                curt = "La distribución es leptocúrtica (colas delgadas, pico alto)."
-            else:
-                curt = "La distribución es mesocúrtica (forma normal)."
+            Md = f"{d_50:.2f} μm" if es_num(d_50) else "No disponible"
+            M = f"{((d_16 + d_50 + d_84) / 3):.2f} μm" if all(es_num(x) for x in [d_16, d_50, d_84]) else "No disponible"
+            sigma_val = ((d_84 - d_16) / 4) + ((d_95 - d_05) / 6.6) if all(es_num(x) for x in [d_16, d_84, d_05, d_95]) else None
+            sigma = f"{sigma_val:.2f} μm" if sigma_val is not None else "No disponible"
+            Sk_val = (((d_84 + d_16 - 2 * d_50) / (2 * (d_84 - d_16))) + ((d_95 + d_05 - 2 * d_50) / (2 * (d_95 - d_05)))) if all(es_num(x) for x in [d_16, d_84, d_50, d_05, d_95]) else None
+            Sk = f"{Sk_val:.2f}" if Sk_val is not None else "No disponible"
+            KG_val = (d_95 - d_05) / (2.44 * (d_75 - d_25)) if all(es_num(x) for x in [d_95, d_05, d_75, d_25]) and (d_75 - d_25) != 0 else None
+            KG = f"{KG_val:.2f}" if KG_val is not None else "No disponible"
 
             st.markdown(f"""
-                        - **Dispersión (σ):** {disp}  
-                        - **Asimetría (Sk):** {asim}  
-                        - **Curtosis (K):** {curt}
+                        - Md = {Md}
+                        - M = {M}
+                        - σ = {sigma}
+                        - Sk = {Sk}
+                        - K = {KG}
                         """)
 
-        st.info("Los estadísticos con la descripción **No disponible** se deben a que uno o más valores nominales no pudieron ser definidos a partir de los datos ingresados.")
+            # Comentarios de interpretación
+            st.subheader("Interpretación de los estadísticos Folk & Ward")
+
+            if sigma_val is None or Sk_val is None or KG_val is None:
+                st.warning("No se pueden generar interpretaciones completas debido a datos incompletos.")
+            else:
+                if sigma_val < 0.35:
+                    disp = "La muestra presenta una distribución granulométrica muy uniforme (bien seleccionada)."
+                elif sigma_val < 0.50:
+                    disp = "La muestra presenta una distribución relativamente uniforme (moderadamente seleccionada)."
+                else:
+                    disp = "La muestra presenta una amplia dispersión de tamaños"
+
+                if Sk_val < -0.3:
+                    asim = "La distribución es sesgada hacia partículas finas."
+                elif Sk_val > 0.3:
+                    asim = "La distribución es sesgada hacia partículas gruesas."
+                else:
+                    asim = "La distribución es relativamente simétrica."
+
+                if KG_val < 0.67:
+                    curt = "La distribución es platicúrtica (colas anchas, pico bajo)."
+                elif KG_val > 1.00:
+                    curt = "La distribución es leptocúrtica (colas delgadas, pico alto)."
+                else:
+                    curt = "La distribución es mesocúrtica (forma normal)."
+
+                st.markdown(f"""
+                            - **Dispersión (σ):** {disp}
+                            - **Asimetría (Sk):** {asim}
+                            - **Curtosis (K):** {curt}
+                            """)
+            
+            st.info("Los estadísticos con la descripción **No disponible** se deben a que uno o más valores nominales no pudieron ser definidos a partir de los datos ingresados.")
 
     else:
         st.warning("Por favor, ingrese datos válidos y un peso total mayor a cero.")
 else:
     st.info("Ingrese los datos y presione **CALCULAR** para mostrar los resultados.")
+
+
 
 
 
