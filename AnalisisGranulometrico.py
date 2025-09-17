@@ -81,15 +81,23 @@ if st.session_state["calculado"]:
         st.dataframe(df[["Tamaño (μm)", "Peso retenido (g)", "%Peso", "%R(d)", "%F(d)"]],
                      use_container_width=True)
 
-      # Selector de gráficos en la pestaña de Resultados
-        grafico_seleccionado = st.selectbox(
-            "GRAFICOS",
-            ["DISTRIBUCIÓN POR CLASES (%Peso)",
-             "%ACUMULADO PASANTE",
-             "%ACUMULADO RETENIDO",
-             "RETENIDO vs PASANTE",
-             "COMPARACIÓN DE CURVAS"]
-        )
+      # Selector de gráficos en la pestaña de Resultado
+        
+        col_izq, col_der = st.columns([3, 2])
+
+        with col_izq:
+            st.subheader("Tabla de datos procesados")
+            st.dataframe(df[["Tamaño (μm)", "Peso retenido (g)", "%Peso", "%R(d)", "%F(d)"]],
+                         use_container_width=True)
+
+            grafico_seleccionado = st.selectbox(
+                "GRAFICOS",
+                ["DISTRIBUCIÓN POR CLASES (%Peso)",
+                 "%ACUMULADO PASANTE",
+                 "%ACUMULADO RETENIDO",
+                 "RETENIDO vs PASANTE",
+                 "COMPARACIÓN DE CURVAS"]
+            )
 
         df_plot = df[df["Tamaño (μm)"] > 0].sort_values(by="Tamaño (μm)")
         
@@ -173,25 +181,22 @@ if st.session_state["calculado"]:
 
         st.pyplot(fig)
 
-                # ==============================
         # Sección de estadísticos globales (después de los gráficos)
-        # ==============================
-        tamaños = df_plot["Tamaño (μm)"]
-        pesos = df_plot["%Peso"]
+        
+        with col_der:
+            if st.button("ESTADISTICOS"):
+                st.subheader("Estadísticos de Tamaño (μm)")
+                st.write(f"Media: {media:.2f}")
+                st.write(f"Mediana: {mediana:.2f}")
+                st.write(f"Moda: {moda:.2f}")
+                st.write(f"Varianza: {varianza_tamaño:.2f}")
 
-        # --- Estadísticos de Tamaño ---
-        media = np.average(tamaños, weights=pesos)
-        moda = tamaños.loc[pesos.idxmax()]
-        acumulado = pesos.cumsum()
-        mediana = tamaños.loc[acumulado[acumulado >= 50].index[0]]
-        varianza_tamaño = np.average((tamaños - media) ** 2, weights=pesos)
-
-        # --- Estadísticos de %Peso ---
-        peso_en_media = np.interp(media, tamaños, pesos)  # interpolación para %Peso en el valor medio
-        peso_en_mediana = pesos.loc[tamaños == mediana].values[0]
-        peso_en_moda = pesos.loc[pesos.idxmax()]
-        varianza_peso = np.var(pesos)
-
+                st.subheader("Estadísticos de %Peso")
+                st.write(f"%Peso en Media: {peso_en_media:.2f}")
+                st.write(f"%Peso en Mediana: {peso_en_mediana:.2f}")
+                st.write(f"%Peso en Moda: {peso_en_moda:.2f}")
+                st.write(f"Varianza de %Peso: {varianza_peso:.2f}")
+        
         # Mostrar en dos columnas
         col1, col2 = st.columns(2)
 
@@ -366,6 +371,7 @@ if st.session_state["calculado"]:
         st.warning("Por favor, ingrese datos válidos y un peso total mayor a cero.")
 else:
     st.info("Ingrese los datos y presione **CALCULAR** para mostrar los resultados.")
+
 
 
 
