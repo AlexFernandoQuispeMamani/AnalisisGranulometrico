@@ -36,7 +36,7 @@ with col1:
 
 with col2:
     st.markdown("""
-    ### Esta herramienta permite analizar la **distribución granulométrica** de una muestra de partículas.
+    # Esta herramienta permite analizar la **distribución granulométrica** de una muestra de partículas.
 
     A partir de los pesos retenidos sobre cada tamiz, calcula:
     - Tabla de análisis granulométrico.
@@ -329,6 +329,7 @@ if st.session_state["calculado"]:
         st.warning("Por favor, ingrese datos válidos y un peso total mayor a cero.")
 else:
     st.info("Ingrese los datos y presione **CALCULAR** para mostrar los resultados.")
+
 
 
 
