@@ -80,7 +80,7 @@ if st.session_state["calculado"]:
         # ---------------------------
         # Crear las dos columnas principales para el resultado
         # ---------------------------
-        col_graficos, col_estadisticos = st.columns([1, 1])
+        col_graficos, col_estadisticos = st.columns([3, 3])
 
         with col_graficos:
             # ---------------------------
@@ -329,6 +329,7 @@ if st.session_state["calculado"]:
         st.warning("Por favor, ingrese datos válidos y un peso total mayor a cero.")
 else:
     st.info("Ingrese los datos y presione **CALCULAR** para mostrar los resultados.")
+
 
 
 
