@@ -90,10 +90,13 @@ if st.session_state["calculado"]:
              "%ACUMULADO RETENIDO",
              "RETENIDO vs PASANTE",
              "COMPARACIÓN DE CURVAS"],
-        index=0
+            index=0
         )
 
+        # Solo dibujar si se selecciona un gráfico real
         if grafico_seleccionado != "GRÁFICOS":
+            df_plot = df[df["Tamaño (μm)"] > 0].sort_values(by="Tamaño (μm)")
+
             fig, ax = plt.subplots()
             ax.set_facecolor("white")
             fig.patch.set_facecolor("lightgray")
@@ -101,85 +104,65 @@ if st.session_state["calculado"]:
             ax.tick_params(colors='black')
             ax.set_xlabel("Tamaño de partícula (μm)")
 
-        # 1) Distribución por clases
-        if grafico_seleccionado == "DISTRIBUCIÓN POR CLASES (%Peso)":
-            ax.plot(df_plot["Tamaño (μm)"], df_plot["%Peso"], marker='x', color='green', linewidth=1)
-            ax.set_ylabel("%Peso")
-            ax.set_title("DISTRIBUCIÓN POR CLASES")
+            # 1) Distribución por clases
+            if grafico_seleccionado == "DISTRIBUCIÓN POR CLASES (%Peso)":
+                ax.plot(df_plot["Tamaño (μm)"], df_plot["%Peso"], marker='x', color='green', linewidth=1)
+                ax.set_ylabel("%Peso")
+                ax.set_title("DISTRIBUCIÓN POR CLASES")
+                # cálculo de estadísticos opcional aquí
 
-            tamaños = df_plot["Tamaño (μm)"]
-            pesos = df_plot["%Peso"]
-            media = np.average(tamaños, weights=pesos)
-            moda = tamaños.loc[pesos.idxmax()]
-            acumulado = pesos.cumsum()
-            mediana = tamaños.loc[acumulado[acumulado >= 50].index[0]]
+            # 2) %Acumulado pasante
+            elif grafico_seleccionado == "%ACUMULADO PASANTE":
+                df_pasante = pd.concat([
+                    pd.DataFrame({"Tamaño (μm)": [0], "%F(d)": [0]}),
+                    df_plot[["Tamaño (μm)", "%F(d)"]]
+                ]).sort_values(by="Tamaño (μm)")
+                ax.set_ylim(0, 100)
+                ax.plot(df_pasante["Tamaño (μm)"], df_pasante["%F(d)"], marker='x', color='red', linewidth=1)
+                ax.set_ylabel("%F(d)")
+                ax.set_title("%ACUMULADO PASANTE")
 
-            st.markdown(f"""
-            **Estadísticos de la distribución por clases (%Peso):**  
-            - Media: {media:.2f} μm  
-            - Moda: {moda:.2f} μm  
-            - Mediana: {mediana:.2f} μm
-            """)
+            # 3) %Acumulado retenido
+            elif grafico_seleccionado == "%ACUMULADO RETENIDO":
+                df_retenido = pd.concat([
+                    pd.DataFrame({"Tamaño (μm)": [0], "%R(d)": [100]}),
+                    df_plot[["Tamaño (μm)", "%R(d)"]]
+                ]).sort_values(by="Tamaño (μm)")
+                ax.set_ylim(0, 100)
+                ax.plot(df_retenido["Tamaño (μm)"], df_retenido["%R(d)"], marker='x', color='blue', linewidth=1)
+                ax.set_ylabel("%R(d)")
+                ax.set_title("%ACUMULADO RETENIDO")
 
-        # 2) %Acumulado pasante
-        elif grafico_seleccionado == "%ACUMULADO PASANTE":
-            df_pasante = pd.concat([
-                pd.DataFrame({"Tamaño (μm)": [0], "%F(d)": [0]}),
-                df_plot[["Tamaño (μm)", "%F(d)"]]
-            ]).sort_values(by="Tamaño (μm)")
-            ax.set_ylim(0, 100)
-            ax.plot(df_pasante["Tamaño (μm)"], df_pasante["%F(d)"], marker='x', color='red', linewidth=1)
-            ax.set_ylabel("%F(d)")
-            ax.set_title("%ACUMULADO PASANTE")
+            # 4) Retenido vs Pasante
+            elif grafico_seleccionado == "RETENIDO vs PASANTE":
+                ax.set_ylim(0, 100)
+                ax.plot(df_plot["Tamaño (μm)"], df_plot["%R(d)"], marker='^', color='blue', linewidth=1, label="%R(d)")
+                ax.plot(df_plot["Tamaño (μm)"], df_plot["%F(d)"], marker='s', color='red', linewidth=1, label="%F(d)")
+                ax.set_ylabel("Porcentaje (%)")
+                ax.set_title("RETENIDO vs PASANTE")
+                ax.legend()
 
-        # 3) %Acumulado retenido
-        elif grafico_seleccionado == "%ACUMULADO RETENIDO":
-            df_retenido = pd.concat([
-                pd.DataFrame({"Tamaño (μm)": [0], "%R(d)": [100]}),
-                df_plot[["Tamaño (μm)", "%R(d)"]]
-            ]).sort_values(by="Tamaño (μm)")
-            ax.set_ylim(0, 100)
-            ax.plot(df_retenido["Tamaño (μm)"], df_retenido["%R(d)"], marker='x', color='blue', linewidth=1)
-            ax.set_ylabel("%R(d)")
-            ax.set_title("%ACUMULADO RETENIDO")
+            # 5) Comparación de curvas
+            elif grafico_seleccionado == "COMPARACIÓN DE CURVAS":
+                df_pasante = pd.concat([
+                    pd.DataFrame({"Tamaño (μm)": [0], "%F(d)": [0]}),
+                    df_plot[["Tamaño (μm)", "%F(d)"]]
+                ]).sort_values(by="Tamaño (μm)")
 
-        # 4) Retenido vs Pasante
-        elif grafico_seleccionado == "RETENIDO vs PASANTE":
-            ax.set_ylim(0, 100)
-            ax.plot(df_plot["Tamaño (μm)"], df_plot["%R(d)"], marker='^', color='blue', linewidth=1, label="%R(d)")
-            ax.plot(df_plot["Tamaño (μm)"], df_plot["%F(d)"], marker='s', color='red', linewidth=1, label="%F(d)")
-            ax.set_ylabel("Porcentaje (%)")
-            ax.set_title("RETENIDO vs PASANTE")
-            ax.legend()
+                df_retenido = pd.concat([
+                    pd.DataFrame({"Tamaño (μm)": [0], "%R(d)": [100]}),
+                    df_plot[["Tamaño (μm)", "%R(d)"]]
+                ]).sort_values(by="Tamaño (μm)")
 
-        # 5) Comparación de las 3 curvas
-        elif grafico_seleccionado == "COMPARACIÓN DE CURVAS":
-            df_pasante = pd.concat([
-                pd.DataFrame({"Tamaño (μm)": [0], "%F(d)": [0]}),
-                df_plot[["Tamaño (μm)", "%F(d)"]]
-            ]).sort_values(by="Tamaño (μm)")
+                ax.set_ylim(0, 100)
+                ax.plot(df_plot["Tamaño (μm)"], df_plot["%Peso"], marker='o', color='green', linewidth=1, label="%Peso")
+                ax.plot(df_pasante["Tamaño (μm)"], df_pasante["%F(d)"], marker='s', linestyle='--', color='red', linewidth=1, label="%F(d)")
+                ax.plot(df_retenido["Tamaño (μm)"], df_retenido["%R(d)"], marker='^', linestyle='-.', color='blue', linewidth=1, label="%R(d)")
+                ax.set_ylabel("Porcentaje (%)")
+                ax.set_title("COMPARACIÓN DE CURVAS: %Peso, %F(d) y %R(d)")
+                ax.legend()
 
-            df_retenido = pd.concat([
-                pd.DataFrame({"Tamaño (μm)": [0], "%R(d)": [100]}),
-                df_plot[["Tamaño (μm)", "%R(d)"]]
-            ]).sort_values(by="Tamaño (μm)")
-
-            ax.set_ylim(0, 100)
-
-            # %Peso
-            ax.plot(df_plot["Tamaño (μm)"], df_plot["%Peso"], marker='o', color='green', linewidth=1, label="%Peso")
-
-            # %F(d)
-            ax.plot(df_pasante["Tamaño (μm)"], df_pasante["%F(d)"], marker='s', linestyle='--', color='red', linewidth=1, label="%F(d)")
-
-            # %R(d)
-            ax.plot(df_retenido["Tamaño (μm)"], df_retenido["%R(d)"], marker='^', linestyle='-.', color='blue', linewidth=1, label="%R(d)")
-
-            ax.set_ylabel("Porcentaje (%)")
-            ax.set_title("COMPARACIÓN DE CURVAS: %Peso, %F(d) y %R(d)")
-            ax.legend()
-
-        st.pyplot(fig)
+            st.pyplot(fig)
 
         # Tamaños nominales (d05, d16, etc.)
         st.subheader("Tamaños nominales")
@@ -338,6 +321,7 @@ if st.session_state["calculado"]:
         st.warning("Por favor, ingrese datos válidos y un peso total mayor a cero.")
 else:
     st.info("Ingrese los datos y presione **CALCULAR** para mostrar los resultados.")
+
 
 
 
