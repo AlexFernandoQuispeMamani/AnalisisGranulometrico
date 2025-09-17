@@ -10,7 +10,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
-st.set_page_config(page_title="CARACTERIZACIÓN GRANULOMÉTRICA", layout="centered")
+st.set_page_config(page_title="CARACTERIZACIÓN GRANULOMÉTRICA", layout="wide")
 
 st.markdown("<h1 style='text-align: center;'>CARACTERIZACIÓN GRANULOMÉTRICA</h1>", unsafe_allow_html=True)
 st.markdown("<h4 style='text-align: center;'>Alex Fernando Quispe Mamani</h4>", unsafe_allow_html=True)
@@ -329,6 +329,7 @@ if st.session_state["calculado"]:
         st.warning("Por favor, ingrese datos válidos y un peso total mayor a cero.")
 else:
     st.info("Ingrese los datos y presione **CALCULAR** para mostrar los resultados.")
+
 
 
 
