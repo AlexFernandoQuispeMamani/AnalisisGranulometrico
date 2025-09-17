@@ -170,8 +170,10 @@ if st.session_state["calculado"]:
             ax.set_ylabel("Porcentaje (%)")
             ax.set_title("COMPARACIÓN DE CURVAS: %Peso, %F(d) y %R(d)")
             ax.legend()
-            
-        # ==============================
+
+        st.pyplot(fig)
+
+                # ==============================
         # Sección de estadísticos globales (después de los gráficos)
         # ==============================
         tamaños = df_plot["Tamaño (μm)"]
@@ -206,9 +208,7 @@ if st.session_state["calculado"]:
             st.write(f"%Peso en Mediana: {peso_en_mediana:.2f}")
             st.write(f"%Peso en Moda: {peso_en_moda:.2f}")
             st.write(f"Varianza de %Peso: {varianza_peso:.2f}")
-
-        st.pyplot(fig)
-
+            
         # Tamaños nominales (d05, d16, etc.)
         st.subheader("Tamaños nominales")
         objetivos = [5, 16, 25, 50, 75, 80, 84, 95]
@@ -366,6 +366,7 @@ if st.session_state["calculado"]:
         st.warning("Por favor, ingrese datos válidos y un peso total mayor a cero.")
 else:
     st.info("Ingrese los datos y presione **CALCULAR** para mostrar los resultados.")
+
 
 
 
