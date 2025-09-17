@@ -93,6 +93,26 @@ if st.session_state["calculado"]:
 
         df_plot = df[df["Tamaño (μm)"] > 0].sort_values(by="Tamaño (μm)")
 
+        tamaños = df_plot["Tamaño (μm)"]
+        pesos = df_plot["%Peso"]
+        media = np.average(tamaños, weights=pesos)
+        moda = tamaños.loc[pesos.idxmax()]
+        acumulado = pesos.cumsum()
+        mediana = tamaños.loc[acumulado[acumulado >= 50].index[0]]
+        varianza = np.average((tamaños - media) ** 2, weights=pesos)
+        minimo = tamaños.min()
+        maximo = tamaños.max()
+
+        st.subheader("Estadísticos de la distribución por clases (%Peso)")
+        st.markdown(f"""
+        - Media: {media:.2f} μm  
+        - Moda: {moda:.2f} μm  
+        - Mediana: {mediana:.2f} μm  
+        - Varianza: {varianza:.2f}  
+        - Mínimo: {minimo:.2f} μm  
+        - Máximo: {maximo:.2f} μm
+        """)
+        
         fig, ax = plt.subplots()
         ax.set_facecolor("white")
         fig.patch.set_facecolor("lightgray")
@@ -112,13 +132,6 @@ if st.session_state["calculado"]:
             moda = tamaños.loc[pesos.idxmax()]
             acumulado = pesos.cumsum()
             mediana = tamaños.loc[acumulado[acumulado >= 50].index[0]]
-
-            st.markdown(f"""
-            **Estadísticos de la distribución por clases (%Peso):**  
-            - Media: {media:.2f} μm  
-            - Moda: {moda:.2f} μm  
-            - Mediana: {mediana:.2f} μm
-            """)
 
         # 2) %Acumulado pasante
         elif grafico_seleccionado == "%ACUMULADO PASANTE":
@@ -337,6 +350,7 @@ if st.session_state["calculado"]:
         st.warning("Por favor, ingrese datos válidos y un peso total mayor a cero.")
 else:
     st.info("Ingrese los datos y presione **CALCULAR** para mostrar los resultados.")
+
 
 
 
