@@ -15,7 +15,7 @@ st.set_page_config(page_title="CARACTERIZACIÓN GRANULOMÉTRICA", layout="center
 st.markdown("<h1 style='text-align: center;'>CARACTERIZACIÓN GRANULOMÉTRICA</h1>", unsafe_allow_html=True)
 st.markdown("<h4 style='text-align: center;'>Alex Fernando Quispe Mamani</h4>", unsafe_allow_html=True)
 
-col1, col2 = st.columns([2, 2])
+col1, col2 = st.columns([3, 3])
 
 with col1:
     st.write("Ingrese el **peso total de la muestra**:")
@@ -80,7 +80,7 @@ if st.session_state["calculado"]:
         # ---------------------------
         # Crear las dos columnas principales para el resultado
         # ---------------------------
-        col_graficos, col_estadisticos = st.columns([2, 2])
+        col_graficos, col_estadisticos = st.columns([3, 3])
 
         with col_graficos:
             # ---------------------------
@@ -329,6 +329,7 @@ if st.session_state["calculado"]:
         st.warning("Por favor, ingrese datos válidos y un peso total mayor a cero.")
 else:
     st.info("Ingrese los datos y presione **CALCULAR** para mostrar los resultados.")
+
 
 
 
