@@ -92,26 +92,6 @@ if st.session_state["calculado"]:
         )
 
         df_plot = df[df["Tamaño (μm)"] > 0].sort_values(by="Tamaño (μm)")
-
-        tamaños = df_plot["Tamaño (μm)"]
-        pesos = df_plot["%Peso"]
-        media = np.average(tamaños, weights=pesos)
-        moda = tamaños.loc[pesos.idxmax()]
-        acumulado = pesos.cumsum()
-        mediana = tamaños.loc[acumulado[acumulado >= 50].index[0]]
-        varianza = np.average((tamaños - media) ** 2, weights=pesos)
-        minimo = tamaños.min()
-        maximo = tamaños.max()
-
-        st.subheader("Estadísticos de la distribución por clases (%Peso)")
-        st.markdown(f"""
-        - Media: {media:.2f} μm  
-        - Moda: {moda:.2f} μm  
-        - Mediana: {mediana:.2f} μm  
-        - Varianza: {varianza:.2f}  
-        - Mínimo: {minimo:.2f} μm  
-        - Máximo: {maximo:.2f} μm
-        """)
         
         fig, ax = plt.subplots()
         ax.set_facecolor("white")
@@ -190,6 +170,42 @@ if st.session_state["calculado"]:
             ax.set_ylabel("Porcentaje (%)")
             ax.set_title("COMPARACIÓN DE CURVAS: %Peso, %F(d) y %R(d)")
             ax.legend()
+            
+        # ==============================
+        # Sección de estadísticos globales (después de los gráficos)
+        # ==============================
+        tamaños = df_plot["Tamaño (μm)"]
+        pesos = df_plot["%Peso"]
+
+        # --- Estadísticos de Tamaño ---
+        media = np.average(tamaños, weights=pesos)
+        moda = tamaños.loc[pesos.idxmax()]
+        acumulado = pesos.cumsum()
+        mediana = tamaños.loc[acumulado[acumulado >= 50].index[0]]
+        varianza_tamaño = np.average((tamaños - media) ** 2, weights=pesos)
+
+        # --- Estadísticos de %Peso ---
+        peso_en_media = np.interp(media, tamaños, pesos)  # interpolación para %Peso en el valor medio
+        peso_en_mediana = pesos.loc[tamaños == mediana].values[0]
+        peso_en_moda = pesos.loc[pesos.idxmax()]
+        varianza_peso = np.var(pesos)
+
+        # Mostrar en dos columnas
+        col1, col2 = st.columns(2)
+
+        with col1:
+            st.subheader("Estadísticos de Tamaño (μm)")
+            st.write(f"Media: {media:.2f}")
+            st.write(f"Mediana: {mediana:.2f}")
+            st.write(f"Moda: {moda:.2f}")
+            st.write(f"Varianza: {varianza_tamaño:.2f}")
+
+        with col2:
+            st.subheader("Estadísticos de %Peso")
+            st.write(f"%Peso en Media: {peso_en_media:.2f}")
+            st.write(f"%Peso en Mediana: {peso_en_mediana:.2f}")
+            st.write(f"%Peso en Moda: {peso_en_moda:.2f}")
+            st.write(f"Varianza de %Peso: {varianza_peso:.2f}")
 
         st.pyplot(fig)
 
@@ -350,6 +366,7 @@ if st.session_state["calculado"]:
         st.warning("Por favor, ingrese datos válidos y un peso total mayor a cero.")
 else:
     st.info("Ingrese los datos y presione **CALCULAR** para mostrar los resultados.")
+
 
 
 
