@@ -42,7 +42,7 @@ with col2:
     - Tabla de análisis granulométrico.
     - Tamaños nominales (como d₅₀, d₈₀).
     - Estadísticos generales.
-    - Diagramas de simple distribución y perfiles granulométricos
+    - Diagramas de simple distribución y perfiles granulométricos.
     - Estadísticos según Folk & Ward.
 
     Presiona **CALCULAR** para procesar los datos.
@@ -77,30 +77,27 @@ if st.session_state["calculado"]:
         df["%R(d)"] = df["%Peso"].cumsum()
         df["%F(d)"] = 100 - df["%R(d)"]
 
+        # ---------------------------
+        # Mostrar tabla procesada
+        # ---------------------------
         st.subheader("Tabla de datos procesados")
         st.dataframe(df[["Tamaño (μm)", "Peso retenido (g)", "%Peso", "%R(d)", "%F(d)"]],
                      use_container_width=True)
 
-      # Selector de gráficos en la pestaña de Resultado
-        
-        col_izq, col_der = st.columns([3, 2])
-
-        with col_izq:
-            st.subheader("Tabla de datos procesados")
-            st.dataframe(df[["Tamaño (μm)", "Peso retenido (g)", "%Peso", "%R(d)", "%F(d)"]],
-                         use_container_width=True)
-
-            grafico_seleccionado = st.selectbox(
-                "GRAFICOS",
-                ["DISTRIBUCIÓN POR CLASES (%Peso)",
-                 "%ACUMULADO PASANTE",
-                 "%ACUMULADO RETENIDO",
-                 "RETENIDO vs PASANTE",
-                 "COMPARACIÓN DE CURVAS"]
-            )
+        # ---------------------------
+        # Selector de gráficos
+        # ---------------------------
+        grafico_seleccionado = st.selectbox(
+            "GRAFICOS",
+            ["DISTRIBUCIÓN POR CLASES (%Peso)",
+             "%ACUMULADO PASANTE",
+             "%ACUMULADO RETENIDO",
+             "RETENIDO vs PASANTE",
+             "COMPARACIÓN DE CURVAS"]
+        )
 
         df_plot = df[df["Tamaño (μm)"] > 0].sort_values(by="Tamaño (μm)")
-        
+
         fig, ax = plt.subplots()
         ax.set_facecolor("white")
         fig.patch.set_facecolor("lightgray")
@@ -108,20 +105,12 @@ if st.session_state["calculado"]:
         ax.tick_params(colors='black')
         ax.set_xlabel("Tamaño de partícula (μm)")
 
-        # 1) Distribución por clases
+        # Gráficos
         if grafico_seleccionado == "DISTRIBUCIÓN POR CLASES (%Peso)":
             ax.plot(df_plot["Tamaño (μm)"], df_plot["%Peso"], marker='x', color='green', linewidth=1)
             ax.set_ylabel("%Peso")
             ax.set_title("DISTRIBUCIÓN POR CLASES")
 
-            tamaños = df_plot["Tamaño (μm)"]
-            pesos = df_plot["%Peso"]
-            media = np.average(tamaños, weights=pesos)
-            moda = tamaños.loc[pesos.idxmax()]
-            acumulado = pesos.cumsum()
-            mediana = tamaños.loc[acumulado[acumulado >= 50].index[0]]
-
-        # 2) %Acumulado pasante
         elif grafico_seleccionado == "%ACUMULADO PASANTE":
             df_pasante = pd.concat([
                 pd.DataFrame({"Tamaño (μm)": [0], "%F(d)": [0]}),
@@ -132,7 +121,6 @@ if st.session_state["calculado"]:
             ax.set_ylabel("%F(d)")
             ax.set_title("%ACUMULADO PASANTE")
 
-        # 3) %Acumulado retenido
         elif grafico_seleccionado == "%ACUMULADO RETENIDO":
             df_retenido = pd.concat([
                 pd.DataFrame({"Tamaño (μm)": [0], "%R(d)": [100]}),
@@ -143,7 +131,6 @@ if st.session_state["calculado"]:
             ax.set_ylabel("%R(d)")
             ax.set_title("%ACUMULADO RETENIDO")
 
-        # 4) Retenido vs Pasante
         elif grafico_seleccionado == "RETENIDO vs PASANTE":
             ax.set_ylim(0, 100)
             ax.plot(df_plot["Tamaño (μm)"], df_plot["%R(d)"], marker='^', color='blue', linewidth=1, label="%R(d)")
@@ -152,7 +139,6 @@ if st.session_state["calculado"]:
             ax.set_title("RETENIDO vs PASANTE")
             ax.legend()
 
-        # 5) Comparación de las 3 curvas
         elif grafico_seleccionado == "COMPARACIÓN DE CURVAS":
             df_pasante = pd.concat([
                 pd.DataFrame({"Tamaño (μm)": [0], "%F(d)": [0]}),
@@ -165,49 +151,41 @@ if st.session_state["calculado"]:
             ]).sort_values(by="Tamaño (μm)")
 
             ax.set_ylim(0, 100)
-
-            # %Peso
             ax.plot(df_plot["Tamaño (μm)"], df_plot["%Peso"], marker='o', color='green', linewidth=1, label="%Peso")
-
-            # %F(d)
             ax.plot(df_pasante["Tamaño (μm)"], df_pasante["%F(d)"], marker='s', linestyle='--', color='red', linewidth=1, label="%F(d)")
-
-            # %R(d)
             ax.plot(df_retenido["Tamaño (μm)"], df_retenido["%R(d)"], marker='^', linestyle='-.', color='blue', linewidth=1, label="%R(d)")
-
             ax.set_ylabel("Porcentaje (%)")
             ax.set_title("COMPARACIÓN DE CURVAS: %Peso, %F(d) y %R(d)")
             ax.legend()
 
         st.pyplot(fig)
 
-        # Sección de estadísticos globales (después de los gráficos)
-        
-        with col_der:
-            if st.button("ESTADISTICOS"):
-                st.subheader("Estadísticos de Tamaño (μm)")
-                st.write(f"Media: {media:.2f}")
-                st.write(f"Mediana: {mediana:.2f}")
-                st.write(f"Moda: {moda:.2f}")
-                st.write(f"Varianza: {varianza_tamaño:.2f}")
+        # ---------------------------
+        # Estadísticos en dos columnas
+        # ---------------------------
+        st.subheader("Estadísticos generales")
 
-                st.subheader("Estadísticos de %Peso")
-                st.write(f"%Peso en Media: {peso_en_media:.2f}")
-                st.write(f"%Peso en Mediana: {peso_en_mediana:.2f}")
-                st.write(f"%Peso en Moda: {peso_en_moda:.2f}")
-                st.write(f"Varianza de %Peso: {varianza_peso:.2f}")
-        
-        # Mostrar en dos columnas
-        col1, col2 = st.columns(2)
+        # Estadísticos básicos de tamaño
+        media = df_plot["Tamaño (μm)"].mean()
+        mediana = df_plot["Tamaño (μm)"].median()
+        moda = df_plot["Tamaño (μm)"].mode()[0]
+        varianza_tamaño = df_plot["Tamaño (μm)"].var()
 
-        with col1:
+        # Estadísticos asociados a %Peso
+        peso_en_media = df_plot.loc[(df_plot["Tamaño (μm)"] - media).abs().idxmin(), "%Peso"]
+        peso_en_mediana = df_plot.loc[(df_plot["Tamaño (μm)"] - mediana).abs().idxmin(), "%Peso"]
+        peso_en_moda = df_plot.loc[(df_plot["Tamaño (μm)"] - moda).abs().idxmin(), "%Peso"]
+        varianza_peso = df_plot["%Peso"].var()
+
+        c1, c2 = st.columns(2)
+        with c1:
             st.subheader("Estadísticos de Tamaño (μm)")
             st.write(f"Media: {media:.2f}")
             st.write(f"Mediana: {mediana:.2f}")
             st.write(f"Moda: {moda:.2f}")
             st.write(f"Varianza: {varianza_tamaño:.2f}")
 
-        with col2:
+        with c2:
             st.subheader("Estadísticos de %Peso")
             st.write(f"%Peso en Media: {peso_en_media:.2f}")
             st.write(f"%Peso en Mediana: {peso_en_mediana:.2f}")
